@@ -17,9 +17,10 @@ define([
   'addons/documents/index-results/stores',
   'addons/documents/header/header.stores',
   'addons/documents/header/header.actions',
-  'addons/documents/resources'
+  'addons/documents/resources',
+  'addons/documents/sidebar/actions'
 ],
-function (app, FauxtonAPI, ActionTypes, Stores, HeaderStores, HeaderActions, Documents) {
+function (app, FauxtonAPI, ActionTypes, Stores, HeaderStores, HeaderActions, Documents, SidebarActions) {
   var indexResultsStore = Stores.indexResultsStore;
   var headerBarStore = HeaderStores.headerBarStore;
 
@@ -197,6 +198,7 @@ function (app, FauxtonAPI, ActionTypes, Stores, HeaderStores, HeaderActions, Doc
       .always(function () {
         reloadResultsList().then(function () {
           selectListOfDocs(selectedIds);
+          SidebarActions.refresh();
         });
       });
     }
