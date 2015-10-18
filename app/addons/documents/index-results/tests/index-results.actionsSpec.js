@@ -17,8 +17,9 @@ define([
   'addons/documents/header/header.stores',
   'addons/documents/header/header.actions',
   'addons/documents/resources',
+  'addons/documents/sidebar/actions',
   'testUtils',
-], function (FauxtonAPI, Actions, Stores, HeaderStores, HeaderActions, Documents, testUtils) {
+], function (FauxtonAPI, Actions, Stores, HeaderStores, HeaderActions, Documents, SidebarActions, testUtils) {
   var assert = testUtils.assert;
   var restore = testUtils.restore;
   var store = Stores.indexResultsStore;
@@ -117,6 +118,7 @@ define([
       restore(FauxtonAPI.addNotification);
       restore(Actions.reloadResultsList);
       restore(Actions.selectListOfDocs);
+      restore(SidebarActions.refresh);
     });
 
     it('doesn\'t delete if user denies confirmation', function () {
@@ -142,6 +144,7 @@ define([
 
     it('on success notifies all deleted', function () {
       var spy = sinon.spy(FauxtonAPI, 'addNotification');
+      var sidebarSpy = sinon.spy(SidebarActions, 'refresh');
       var promise = FauxtonAPI.Deferred();
       var ids = {
           errorIds: []
@@ -162,11 +165,12 @@ define([
       Actions.deleteSelected();
 
       assert.ok(spy.calledOnce);
+      assert.ok(sidebarSpy.calledOnce);
     });
 
     it('on success with some failed ids, re-selects failed', function () {
       var spy = sinon.spy(Actions, 'selectListOfDocs');
-
+      var sidebarSpy = sinon.spy(SidebarActions, 'refresh');
       var reloadResultsListStub = sinon.stub(Actions, 'reloadResultsList');
       var stubPromise = FauxtonAPI.Deferred();
       stubPromise.resolve();
@@ -187,7 +191,9 @@ define([
       stub.returns(bulkDelete);
 
       Actions.deleteSelected();
+
       assert.ok(spy.calledWith(ids.errorIds));
+      assert.ok(sidebarSpy.calledOnce);
     });
 
     it('on failure notifies failed', function () {
