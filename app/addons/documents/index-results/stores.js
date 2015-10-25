@@ -40,6 +40,7 @@ function (app, FauxtonAPI, ActionTypes, HeaderActionTypes, Documents, MangoHelpe
       this._typeOfIndex = 'view';
       this._lastQuery = null;
       this._bulkDeleteDocCollection = null;
+      this._schemaExt = []; // merge w/ schema ?!
     },
 
     clearSelectedItems: function () {
@@ -292,6 +293,7 @@ function (app, FauxtonAPI, ActionTypes, HeaderActionTypes, Documents, MangoHelpe
       return {
         hasEditableAndDeletableDoc: hasEditableAndDeletableDoc,
         schema: schema,
+        schemaExt: this._schemaExt,
         results: res
       };
     },
@@ -319,6 +321,10 @@ function (app, FauxtonAPI, ActionTypes, HeaderActionTypes, Documents, MangoHelpe
 
     isLoading: function () {
       return this._isLoading;
+    },
+
+    addCol: function (colExpression) {
+      this._schemaExt.push(colExpression);
     },
 
     selectDoc: function (id) {
@@ -476,6 +482,9 @@ function (app, FauxtonAPI, ActionTypes, HeaderActionTypes, Documents, MangoHelpe
         break;
         case ActionTypes.INDEX_RESULTS_RESET:
           this.resultsResetFromFetch();
+        break;
+        case ActionTypes.INDEX_RESULTS_ADD_COL:
+          this.addCol(action.colExpression);
         break;
         case ActionTypes.INDEX_RESULTS_SELECT_DOC:
           this.selectDoc(action.id);

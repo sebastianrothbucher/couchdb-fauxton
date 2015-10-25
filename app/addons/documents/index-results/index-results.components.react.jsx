@@ -73,6 +73,22 @@ function (app, FauxtonAPI, React, Stores, Actions, Components, Documents) {
       return row;
     },
 
+    getRowContentsExt: function (element, rownumber) {
+      var row = this.props.schemaExt.map(function (k, i) {
+        var el = eval('element.content.' + k); // use JSONpath ?!
+        var key = 'tableview-data-cell-' + rownumber + k + i + el;
+        var stringified = typeof el === 'object' ? JSON.stringify(el) : el;
+
+        return (
+          <td key={key} title={stringified}>
+            {stringified}
+          </td>
+        );
+      }.bind(this));
+
+      return row;
+    },
+
     maybeGetUrl: function (url, stringified) {
       if (!url) {
         return stringified;
@@ -108,6 +124,7 @@ function (app, FauxtonAPI, React, Stores, Actions, Components, Documents) {
         <tr key={"tableview-content-row-" + i}>
           {this.maybeGetCheckboxCell(i)}
           {this.getRowContents(this.props.data, i)}
+          {this.getRowContentsExt(this.props.data, i)}
         </tr>
       );
     }
@@ -117,6 +134,7 @@ function (app, FauxtonAPI, React, Stores, Actions, Components, Documents) {
     getContentRows: function () {
       var data = this.props.data.results;
       var schema = this.props.data.schema;
+      var schemaExt = this.props.data.schemaExt;
 
       var res = data.map(function (el, i) {
 
@@ -129,6 +147,7 @@ function (app, FauxtonAPI, React, Stores, Actions, Components, Documents) {
             docIdentifier={el.id || "tableview-row-component-" + i}
             docChecked={this.props.docChecked}
             isSelected={this.props.isSelected(el.id)}
+            schemaExt={schemaExt}
             schema={schema} />
         );
       }.bind(this));
@@ -138,7 +157,10 @@ function (app, FauxtonAPI, React, Stores, Actions, Components, Documents) {
 
     getHeader: function () {
       var row = this.props.data.schema.map(function (el, i) {
-        return <th key={"header-el-" + i} title={el}>{el}</th>;
+        return <th key={"header-el-" + (0 + i)} title={el}>{el}</th>;
+      });
+      var rowExt = this.props.data.schemaExt.map(function (el, i) {
+        return <th key={"header-el-" + (row.length + i)} title={el}>{el}</th>;
       });
 
       var box = null;
@@ -151,6 +173,7 @@ function (app, FauxtonAPI, React, Stores, Actions, Components, Documents) {
         <tr key="tableview-content-row-header">
           {box}
           {row}
+          {rowExt}
         </tr>
       );
     },
@@ -177,6 +200,11 @@ function (app, FauxtonAPI, React, Stores, Actions, Components, Documents) {
 
     onDoubleClick: function (id, doc) {
       FauxtonAPI.navigate(doc.url);
+    },
+
+    onAddCol: function () {
+      var colExpression = this.refs.newColExpression.getDOMNode().value;
+      Actions.addCol(colExpression);
     },
 
     getUrlFragment: function (url) {
@@ -265,6 +293,8 @@ function (app, FauxtonAPI, React, Stores, Actions, Components, Documents) {
             selectAll={this.selectAllDocs}
             toggleSelect={this.toggleSelectAll}
             title="Select all docs that can be..." />
+          <input type="text" placeholder="Expression 4 another col..." size="40" ref="newColExpression" />
+          <a className="btn" onClick={this.onAddCol}>+</a>
           {mainView}
         </div>
       );

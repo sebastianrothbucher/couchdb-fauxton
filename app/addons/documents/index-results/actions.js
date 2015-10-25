@@ -130,6 +130,13 @@ function (app, FauxtonAPI, ActionTypes, Stores, HeaderActions, Documents) {
       });
     },
 
+    addCol: function (colExpression) {
+      FauxtonAPI.dispatch({
+        type: ActionTypes.INDEX_RESULTS_ADD_COL, 
+        colExpression: colExpression
+      });
+    },
+
     selectDoc: function (id) {
       FauxtonAPI.dispatch({
         type: ActionTypes.INDEX_RESULTS_SELECT_DOC,
