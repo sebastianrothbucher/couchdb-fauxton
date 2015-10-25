@@ -456,7 +456,9 @@ module.exports = function (grunt) {
   // This makes the watch tasks FAR more performant by only doing JSX compiling, jshinting, copying, etc. on the changed
   // files instead of everything every time. Oddly, grunt-contrib-watch doesn't pass the changed filenames to the task:
   // https://github.com/gruntjs/grunt-contrib-watch/issues/149 - hence running it here
-  grunt.event.on('watch', function (action, filepath) {
+  grunt.event.on('watch', function (action, filepathRaw) {
+    // make sure we have slashes all the time
+    var filepath = filepathRaw.replace(/\\/g, '/');
     var isJS  = /\.js$/.test(filepath);
     var isJSX = /\.jsx$/.test(filepath);
 
@@ -467,6 +469,7 @@ module.exports = function (grunt) {
     // compile the single JSX file into the appropriate Fauxton folder
     var targetFilepath = filepath;
     if (isJSX) {
+      // cut off filename (all after last path separtor)
       var folder = filepath.replace(/\/[^\/]*$/, '');
       var targetFolder = folder;
 
